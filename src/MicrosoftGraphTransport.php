@@ -81,12 +81,26 @@ class MicrosoftGraphTransport extends AbstractTransport
                 'name' => $fileName,
                 'contentType' => implode('/', [$attachment->getMediaType(), $attachment->getMediaSubtype()]),
                 'contentBytes' => base64_encode($attachment->getBody()),
-                'contentId' => $fileName,
+                'contentId' => $this->extractContentId($headers, $fileName),
                 'isInline' => $headers->getHeaderBody('Content-Disposition') === 'inline',
             ];
         }
 
         return [$attachments, $html];
+    }
+
+    /**
+     * Extracts Content-ID from attachment headers for inline/embedded images.
+     * Removes RFC 2392 angle bracket delimiters and falls back to filename if not present.
+     */
+    protected function extractContentId($headers, string $fallback): string
+    {
+        $contentId = trim(
+            $headers->get('Content-ID')?->getBodyAsString() ?? '',
+            " \t\n\r\0\x0B<>"
+        );
+
+        return filled($contentId) ? $contentId : $fallback;
     }
 
     /**
