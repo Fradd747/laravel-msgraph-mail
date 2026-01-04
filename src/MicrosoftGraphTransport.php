@@ -12,6 +12,7 @@ use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\Headers;
 use Symfony\Component\Mime\Header\HeaderInterface;
 use Symfony\Component\Mime\MessageConverter;
 
@@ -93,7 +94,7 @@ class MicrosoftGraphTransport extends AbstractTransport
      * Extracts Content-ID from attachment headers for inline/embedded images.
      * Removes RFC 2392 angle bracket delimiters and falls back to filename if not present.
      */
-    protected function extractContentId($headers, string $fallback): string
+    protected function extractContentId(Headers $headers, string $fallback): string
     {
         $contentId = trim(
             $headers->get('Content-ID')?->getBodyAsString() ?? '',
